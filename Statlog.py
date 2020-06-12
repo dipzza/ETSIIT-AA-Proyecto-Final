@@ -17,6 +17,8 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
 
 # Establecemos semilla para obtener resultados reproducibles
 np.random.seed(500)
@@ -45,6 +47,19 @@ def plot_class_distribution(labels, set_title):
 
     plt.show()
 
+def plot_matrix_confusion(y_test, predicted):
+    matrix = confusion_matrix(y_test, predicted)
+    
+    # Tamaño figura
+    plt.figure(figsize=(9,9))
+    # Pintamos la matriz
+    sns.heatmap(matrix, annot=True, fmt=".0f", linewidths=.5, square=True, cmap=plt.cm.RdPu)
+    plt.ylabel("Etiqueta actual")
+    plt.xlabel("Etiqueta predecida")
+    plt.title("Matriz de confusión")
+    plt.show()
+    
+    
 ###########################################################
 #                                                         #
 #                   MAIN DEL PROGRAMA                     #
@@ -107,25 +122,25 @@ parameters_rf = [{'n_estimators' : [10,100,250,500] , 'max_features': ['auto', '
 columns_rf = ['mean_fit_time', 'mean_test_score', 'mean_score_time', 'std_score_time', 'param_max_features', 'param_n_estimators']                                        
 
 
-#logReg = GridSearchCV(LogisticRegression(solver='saga'), parameters_log)
-#logReg.fit(x_train, y_train)
-#logRegPol = GridSearchCV(LogisticRegression(solver='saga'), parameters_log)
-#logRegPol.fit(x_train_pol, y_train)
+logReg = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs = -1)
+logReg.fit(x_train, y_train)
+logRegPol = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs = -1)
+logRegPol.fit(x_train_pol, y_train)
 randomForest  = GridSearchCV(RandomForestClassifier(), parameters_rf, n_jobs = -1)
 randomForest.fit(x_train, y_train)
-#print('CV para RL\n', pd.DataFrame(logReg.cv_results_, columns=columns_log).to_string())
-#print('CV para RL con combinación no lineal\n',
-        # pd.DataFrame(logRegPol.cv_results_, columns=columns_log).to_string())
+print('CV para RL\n', pd.DataFrame(logReg.cv_results_, columns=columns_log).to_string())
+print('CV para RL con combinación no lineal\n',
+         pd.DataFrame(logRegPol.cv_results_, columns=columns_log).to_string())
 print('CV para RF\n', 
       pd.DataFrame(randomForest.cv_results_, columns=columns_rf).to_string())
 
 # Se muestran los hiperparámetros escogidos y Eval para ambos modelos
 # Observamos que la Regresión Logística proporciona mejores resultados
-# print('\nResultados de selección de hiperparámetros por validación cruzada')
-# print("LR Best hyperparameters: ", logReg.best_params_)
-# print("LR CV-Accuracy :", logReg.best_score_)
+print('\nResultados de selección de hiperparámetros por validación cruzada')
+print("LR Best hyperparameters: ", logReg.best_params_)
+print("LR CV-Accuracy :", logReg.best_score_)
 
-# print("LRP Best hyperparameters: ", logRegPol.best_params_)
+print("LRP Best hyperparameters: ", logRegPol.best_params_)
 # print("LRP CV-Accuracy :", logRegPol.best_score_)
 
 print("RF Best hyperparameters : ", randomForest.best_params_)
@@ -133,18 +148,41 @@ print("RF CV-Accuracy :", randomForest.best_score_)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
-# # Predicción con los modelos entrenados del train y test set
-# print('Métricas de evaluación para los modelos entrenados para train y test')
-# ein_reg = logReg.score(x_train, y_train)
-# ein_lrp = logRegPol.score(x_train_pol, y_train)
+# Predicción con los modelos entrenados del train y test set
+print('Métricas de evaluación para los modelos entrenados para train y test')
+ein_reg = logReg.score(x_train, y_train)
+ein_lrp = logRegPol.score(x_train_pol, y_train)
 ein_lrp = randomForest.score(x_train, y_train)
-# print('LR Train-Accuracy: ' + str(ein_reg))
-# print('LRP Train-Accuracy: ' + str(ein_lrp))
+print('LR Train-Accuracy: ' + str(ein_reg))
+print('LRP Train-Accuracy: ' + str(ein_lrp))
 print('RF Train-Accuracy: ' + str(ein_lrp))
 
-# etest_reg = logReg.score(x_test, y_test)
-# etest_per = logRegPol.score(x_test_pol, y_test)
+etest_reg = logReg.score(x_test, y_test)
+etest_per = logRegPol.score(x_test_pol, y_test)
 etest_rf = randomForest.score(x_test, y_test)
-# print('\nLR Test-Accuracy: ' + str(etest_reg))
-# print('LRP Test-Accuracy: ' + str(etest_per))
+print('\nLR Test-Accuracy: ' + str(etest_reg))
+print('LRP Test-Accuracy: ' + str(etest_per))
 print('RF Test-Accuracy: ' + str(etest_rf))
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Matrices de resultados y matriz de confusión para los modelos ajustados: ")
+
+predicted = logReg.predict(x_test)
+result = classification_report(y_test, predicted)
+print("Matriz de resultados LR:\n", result)
+print('\n- Matriz de confusion LR:\n')
+plot_matrix_confusion(y_test, predicted)
+
+predicted = logRegPol.predict(x_test_pol)
+result = classification_report(y_test, predicted)
+print("Matriz de resultados LRP:\n", result)
+print('\n- Matriz de confusion LRP:\n')
+plot_matrix_confusion(y_test, predicted)
+
+predicted = randomForest.predict(x_test)
+result = classification_report(y_test, predicted)
+print("Matriz de resultados RF:\n", result)
+print('\n- Matriz de confusion RF:\n')
+plot_matrix_confusion(y_test, predicted)
+
