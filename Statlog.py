@@ -119,3 +119,36 @@ for i in dist.index:
               fontsize=18)
     
 #input("\n--- Pulsar tecla para continuar ---\n")
+    
+dist = data_test.iloc[:, -1].value_counts()
+fontdict = {'fontsize': 18, 'weight' : 'bold'}
+#plot
+plt.bar(dist.index, dist)
+# info
+plt.title("Distribución de clases TEST", fontdict=fontdict)
+plt.ylabel("% de Ejemplos", fontdict=fontdict)
+plt.xlabel("Clases", fontdict=fontdict);
+# plot values
+for i in dist.index:
+    plt.text(i - 0.1, dist[i], dist[i], 
+              fontsize=18)
+plt.show()   
+#input("\n--- Pulsar tecla para continuar ---\n")
+ 
+    
+X_train, Y_train = separar_datos(data_train)
+X_test , Y_test = separar_datos(data_test)
+    
+# Preprocesamiento de datos
+ 
+"""  
+#matriz_corr = X_train.corr()
+matrix_corr = pd.DataFrame(X_train).corr()
+print(matrix_corr)
+plt.matshow(matrix_corr)
+plt.show()
+"""
+
+matrix_corr = pd.DataFrame(X_train).corr()
+sns.heatmap(matrix_corr, annot = True)
+plt.show()
