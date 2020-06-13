@@ -118,31 +118,34 @@ x_test_pol = StandardScaler(copy=False).fit_transform(x_test_pol)
 
 # Selección de modelo y entrenamiento
 # Se eligen los mejores hiperparámetros para los modelos 'LogisticRegression' y
-# 'logRegPol' usando validación cruzada 5-fold partiendo el train set,print('LR Train-Accuracy: ' + str(ein_reg))
+# 'logRegPol' usando validación cruzada 5-fold partiendo el train set
 
 # tras esto se entrena cada modelo usando todo el train set.
-parameters_log = [{'penalty': ['l1', 'l2', 'none'], 'C': np.logspace(-3, 3, 7)}]
+parameters_log = [{'penalty': ['none']},
+                  {'penalty': ['l1', 'l2'], 'C': np.logspace(-3, 3, 7)}]
+parameters_rf = [{'n_estimators': [10, 100, 250, 500],
+                  'max_features': ['auto', 'sqrt', 'log2']}]
+
 columns_log = ['mean_fit_time', 'param_C', 'param_penalty', 'mean_test_score',
                'std_test_score', 'rank_test_score']
+columns_rf = ['mean_fit_time', 'mean_test_score', 'mean_score_time',
+              'std_score_time', 'param_max_features', 'param_n_estimators']
 
-parameters_rf = [{'n_estimators' : [10,100,250,500] , 'max_features': ['auto', 'sqrt', 'log2']}]
-columns_rf = ['mean_fit_time', 'mean_test_score', 'mean_score_time', 'std_score_time', 'param_max_features', 'param_n_estimators']                                        
 
-
-logReg = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs = -1)
+logReg = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs=-1)
 logReg.fit(x_train, y_train)
-logRegPol = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs = -1)
+logRegPol = GridSearchCV(LogisticRegression(solver='saga'), parameters_log, n_jobs=-1)
 logRegPol.fit(x_train_pol, y_train)
-randomForest  = GridSearchCV(RandomForestClassifier(), parameters_rf, n_jobs = -1)
+randomForest = GridSearchCV(RandomForestClassifier(), parameters_rf, n_jobs=-1)
 randomForest.fit(x_train, y_train)
+
 print('CV para RL\n', pd.DataFrame(logReg.cv_results_, columns=columns_log).to_string())
 print('CV para RL con combinación no lineal\n',
          pd.DataFrame(logRegPol.cv_results_, columns=columns_log).to_string())
 print('CV para RF\n', 
       pd.DataFrame(randomForest.cv_results_, columns=columns_rf).to_string())
 
-# Se muestran los hiperparámetros escogidos y Eval para ambos modelos
-# Observamos que la Regresión Logística proporciona mejores resultados
+# Se muestran los hiperparámetros escogidos y Eval para todos los modelos
 print('\nResultados de selección de hiperparámetros por validación cruzada')
 print("LR Best hyperparameters: ", logReg.best_params_)
 print("LR CV-Accuracy :", logReg.best_score_)
