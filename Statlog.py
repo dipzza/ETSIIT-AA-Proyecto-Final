@@ -19,6 +19,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+#from imblearn.over_sampling import SMOTE
 
 # Establecemos semilla para obtener resultados reproducibles
 np.random.seed(500)
@@ -98,6 +99,12 @@ sns.heatmap(matrix_corr, annot = True)
 plt.show()
 
 #input("\n--- Pulsar tecla para continuar ---\n")
+"""
+smote = SMOTE()
+print(y_train.count())
+x_train, y_train = smote.fit_resample(x_train, y_train)
+print (np.bincount(y_train))
+"""
 
 # Preprocesamiento de datos
 x_train_pol = PolynomialFeatures().fit_transform(x_train)
