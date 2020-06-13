@@ -12,7 +12,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
@@ -112,17 +111,17 @@ x_train_pol = PolynomialFeatures().fit_transform(x_train)
 x_test_pol = PolynomialFeatures().fit_transform(x_test)
 
 # Normalización
-x_train = MinMaxScaler(copy=False).fit_transform(x_train)
-x_train_pol = MinMaxScaler(copy=False).fit_transform(x_train_pol)
-x_test = MinMaxScaler(copy=False).fit_transform(x_test)
-x_test_pol = MinMaxScaler(copy=False).fit_transform(x_test_pol)
+x_train = StandardScaler(copy=False).fit_transform(x_train)
+x_train_pol = StandardScaler(copy=False).fit_transform(x_train_pol)
+x_test = StandardScaler(copy=False).fit_transform(x_test)
+x_test_pol = StandardScaler(copy=False).fit_transform(x_test_pol)
 
 # Selección de modelo y entrenamiento
 # Se eligen los mejores hiperparámetros para los modelos 'LogisticRegression' y
 # 'logRegPol' usando validación cruzada 5-fold partiendo el train set,print('LR Train-Accuracy: ' + str(ein_reg))
 
 # tras esto se entrena cada modelo usando todo el train set.
-parameters_log = [{'penalty': ['l1', 'l2'], 'C': np.logspace(-3, 3, 7)}]
+parameters_log = [{'penalty': ['l1', 'l2', 'none'], 'C': np.logspace(-3, 3, 7)}]
 columns_log = ['mean_fit_time', 'param_C', 'param_penalty', 'mean_test_score',
                'std_test_score', 'rank_test_score']
 
