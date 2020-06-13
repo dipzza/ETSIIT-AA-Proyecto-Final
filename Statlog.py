@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import GridSearchCV
@@ -111,10 +112,10 @@ x_train_pol = PolynomialFeatures().fit_transform(x_train)
 x_test_pol = PolynomialFeatures().fit_transform(x_test)
 
 # Normalización
-x_train = StandardScaler(copy=False).fit_transform(x_train)
-x_train_pol = StandardScaler(copy=False).fit_transform(x_train_pol)
-x_test = StandardScaler(copy=False).fit_transform(x_test)
-x_test_pol = StandardScaler(copy=False).fit_transform(x_test_pol)
+x_train = MinMaxScaler(copy=False).fit_transform(x_train)
+x_train_pol = MinMaxScaler(copy=False).fit_transform(x_train_pol)
+x_test = MinMaxScaler(copy=False).fit_transform(x_test)
+x_test_pol = MinMaxScaler(copy=False).fit_transform(x_test_pol)
 
 # Selección de modelo y entrenamiento
 # Se eligen los mejores hiperparámetros para los modelos 'LogisticRegression' y
@@ -148,7 +149,7 @@ print("LR Best hyperparameters: ", logReg.best_params_)
 print("LR CV-Accuracy :", logReg.best_score_)
 
 print("LRP Best hyperparameters: ", logRegPol.best_params_)
-# print("LRP CV-Accuracy :", logRegPol.best_score_)
+print("LRP CV-Accuracy :", logRegPol.best_score_)
 
 print("RF Best hyperparameters : ", randomForest.best_params_)
 print("RF CV-Accuracy :", randomForest.best_score_)
