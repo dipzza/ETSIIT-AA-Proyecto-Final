@@ -19,7 +19,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-#from imblearn.over_sampling import SMOTE
+from sklearn.svm import SVC
+
 
 # Establecemos semilla para obtener resultados reproducibles
 np.random.seed(500)
@@ -105,12 +106,6 @@ sns.heatmap(matrix_corr, annot = True)
 plt.show()
 
 #input("\n--- Pulsar tecla para continuar ---\n")
-"""
-smote = SMOTE()
-print(y_train.count())
-x_train, y_train = smote.fit_resample(x_train, y_train)
-print (np.bincount(y_train))
-"""
 
 # Preprocesamiento de datos
 x_train_pol = PolynomialFeatures(include_bias=False).fit_transform(x_train)
@@ -131,12 +126,19 @@ parameters_log = [{'penalty': ['none']},
                   {'penalty': ['l1', 'l2'], 'C': np.logspace(-3, 3, 7)}]
 parameters_rf = [{'n_estimators': [10, 100, 250, 500],
                   'max_features': ['auto', 'sqrt', 'log2']}]
+parameters_svm = [{'C': [0.1 , 10, 100, 1000], 'gamma': [0.1, 0.01, 0.001], 'kernel': ['rbf']},
+                  {'C': [0.1, 10, 100, 1000], 'gamma': [0.1, 0.01, 0.001], 'kernel': ['poly']}]
 
 columns_log = ['mean_fit_time', 'param_C', 'param_penalty', 'mean_test_score',
                'std_test_score', 'rank_test_score']
-columns_rf = ['mean_fit_time', 'mean_test_score', 'mean_score_time',
-              'std_score_time', 'param_max_features', 'param_n_estimators']
+columns_rf = ['mean_fit_time', 'param_max_features', 'param_n_estimators','mean_test_score',
+              'mean_score_time','std_score_time' ]
+columns_svm = [ 'mean_fit_time', 'param_C' ,  'param_gamma', 'param_kernel' ,'mean_test_score',
+                'std_test_score', 'rank_test_score']                                    
 
+#input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Ajustando los modelos ... ")
 
 logReg = GridSearchCV(LogisticRegression(solver='saga', max_iter=1000), parameters_log, n_jobs=-1)
 logReg.fit(x_train, y_train)
@@ -144,23 +146,32 @@ logRegPol = GridSearchCV(LogisticRegression(solver='saga', max_iter=1000), param
 logRegPol.fit(x_train_pol, y_train)
 randomForest = GridSearchCV(RandomForestClassifier(), parameters_rf, n_jobs=-1)
 randomForest.fit(x_train, y_train)
+svm = GridSearchCV(SVC(), parameters_svm, n_jobs = -1)
+svm.fit(x_train, y_train)
+
 
 print('CV para RL\n', pd.DataFrame(logReg.cv_results_, columns=columns_log).to_string())
 print('CV para RL con combinación no lineal\n',
          pd.DataFrame(logRegPol.cv_results_, columns=columns_log).to_string())
 print('CV para RF\n', 
       pd.DataFrame(randomForest.cv_results_, columns=columns_rf).to_string())
+print('CV para SVM\n', 
+      pd.DataFrame(svm.cv_results_, columns=columns_svm).to_string())
 
 # Se muestran los hiperparámetros escogidos y Eval para ambos modelos
 print('\nResultados de selección de hiperparámetros por validación cruzada')
 print("LR Best hyperparameters: ", logReg.best_params_)
 print("LR CV-Accuracy :", logReg.best_score_)
 
+
 print("LRP Best hyperparameters: ", logRegPol.best_params_)
 print("LRP CV-Accuracy :", logRegPol.best_score_)
 
 print("RF Best hyperparameters : ", randomForest.best_params_)
 print("RF CV-Accuracy :", randomForest.best_score_)
+
+print("SVM Best hyperparameters : ", svm.best_params_)
+print("SVM CV-Accuracy :", svm.best_score_)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -169,15 +180,16 @@ print('Métricas de evaluación para los modelos entrenados para train y test')
 print('LR Train-Accuracy: ', logReg.score(x_train, y_train))
 print('LRP Train-Accuracy: ', logRegPol.score(x_train_pol, y_train))
 print('RF Train-Accuracy: ', randomForest.score(x_train, y_train))
+print('SVM Train-Accuracy: ', svm.score(x_train, y_train))
 
 print('\nLR Test-Accuracy: ', logReg.score(x_test, y_test))
 print('LRP Test-Accuracy: ', logRegPol.score(x_test_pol, y_test))
 print('RF Test-Accuracy: ', randomForest.score(x_test, y_test))
+print('SVM Test-Accuracy: ', svm.score(x_test, y_test))
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
 print("Matrices de resultados y matriz de confusión para los modelos ajustados: ")
-
 predicted = logReg.predict(x_test)
 result = classification_report(y_test, predicted)
 print("Matriz de resultados LR:\n", result)
@@ -194,5 +206,11 @@ predicted = randomForest.predict(x_test)
 result = classification_report(y_test, predicted)
 print("Matriz de resultados RF:\n", result)
 print('\n- Matriz de confusion RF:\n')
+plot_matrix_confusion(y_test, predicted)
+
+predicted = svm.predict(x_test)
+result = classification_report(y_test, predicted)
+print("Matriz de resultados SVM:\n", result)
+print('\n- Matriz de confusion SVM:\n')
 plot_matrix_confusion(y_test, predicted)
 
