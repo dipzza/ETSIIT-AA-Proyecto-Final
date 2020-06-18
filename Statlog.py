@@ -73,6 +73,12 @@ print("Leemos los datos")
 x_train, y_train = read_data('./datos/shuttle.trn')
 x_test, y_test = read_data('./datos/shuttle.tst')
 
+# Mostramos las primeras filas del dataset e información del mismo:
+print()
+print(pd.DataFrame(x_train).head().to_string())
+print()
+print(pd.DataFrame(x_train).info())
+
 # Análisis del problema
 # Estadísticas sobre las características
 print(pd.DataFrame(x_train).describe().to_string())
