@@ -84,28 +84,28 @@ print(pd.DataFrame(x_train).info())
 # Estadísticas sobre las características
 print(pd.DataFrame(x_train).describe().to_string())
 
-#input("\n--- Pulsar tecla para continuar ---\n")
+input("\n--- Pulsar tecla para continuar ---\n")
 
 # Comprobamos si existen datos perdidos en el dataset
 print("¿Existen valores perdidos?: ", end='')
 print(pd.DataFrame(np.vstack([x_train, x_test])).isnull().values.any())
 
 
-#input("\n--- Pulsar tecla para continuar ---\n")
+input("\n--- Pulsar tecla para continuar ---\n")
 
 # Vemos la distribución de clases tanto en el train set como en el test set
 print("Distribución de clases para cada conjunto:")
 plot_class_distribution(y_train, 'Training Set')
 plot_class_distribution(y_test, 'Test Set')
 
-#input("\n--- Pulsar tecla para continuar ---\n")
+input("\n--- Pulsar tecla para continuar ---\n")
 
 print("Matriz de correlación entre los atributos:")
 matrix_corr = pd.DataFrame(x_train).corr('pearson').round(3)
 sns.heatmap(matrix_corr, annot = True)
 plt.show()
 
-#input("\n--- Pulsar tecla para continuar ---\n")
+input("\n--- Pulsar tecla para continuar ---\n")
 
 # Preprocesamiento de datos
 x_train_pol = PolynomialFeatures(include_bias=False).fit_transform(x_train)
@@ -136,7 +136,6 @@ columns_rf = ['mean_fit_time', 'param_max_features', 'param_n_estimators','mean_
 columns_svm = [ 'mean_fit_time', 'param_C' ,  'param_gamma', 'param_kernel' ,'mean_test_score',
                 'std_test_score', 'rank_test_score']                                    
 
-#input("\n--- Pulsar tecla para continuar ---\n")
 
 print("Ajustando los modelos ... ")
 
